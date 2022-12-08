@@ -1,6 +1,7 @@
 package com.passwordsafe;
 
 import com.passwordsafe.decorator.*;
+import com.passwordsafe.factory.StrengthTesterFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -80,11 +81,27 @@ public class Main {
                 case 6: {
                     locked = true;
                     passwordSafeEngine = null;
+                    StrengthTesterFactory strengthTesterFactory = new StrengthTesterFactory();
+                    IPasswordRulesetTester rulesetTester = null;
+                    boolean abortMode = false;
+                    do {
+                        System.out.println("Please choose the rule configuration: (1) Weak, (2) Strict");
+                        String mode = read.next();
+                        switch (mode) {
+                            case "1":
+                                rulesetTester = strengthTesterFactory.getTester("weak");
+                                abortMode = true;
+                                break;
+                            case "2":
+                                rulesetTester = strengthTesterFactory.getTester("strict");
+                                abortMode = true;
+                                break;
+                        }
+                    } while (!abortMode);
                     System.out.println("Enter new master password ! (Warning you will loose all already stored passwords)");
                     String masterPw = read.next();
-                    IPasswordRulesetTester rulesetTester = new PasswordContainsNumbers(new PasswordHasMinimumLength(new PasswordContainsSpecialCaracter(new PasswordContainsUpperCase(new RulesetTesterImpl()))));
                     while (!rulesetTester.getRuleset(masterPw)) {
-                        System.out.println("The master password is not equivalent to the defined rulesets!");
+                        System.out.println("The master password is not equivalent to the defined rulesets!\nPlease try again:");
                         masterPw = read.next();
                     }
                     System.out.println("The master password contains all rulesets!");
