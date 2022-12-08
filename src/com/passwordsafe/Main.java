@@ -1,5 +1,7 @@
 package com.passwordsafe;
 
+import com.passwordsafe.decorator.*;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -80,6 +82,12 @@ public class Main {
                     passwordSafeEngine = null;
                     System.out.println("Enter new master password ! (Warning you will loose all already stored passwords)");
                     String masterPw = read.next();
+                    IPasswordRulesetTester rulesetTester = new PasswordContainsNumbers(new PasswordHasMinimumLength(new PasswordContainsSpecialCaracter(new PasswordContainsUpperCase(new RulesetTesterImpl()))));
+                    while (!rulesetTester.getRuleset(masterPw)) {
+                        System.out.println("The master password is not equivalent to the defined rulesets!");
+                        masterPw = read.next();
+                    }
+                    System.out.println("The master password contains all rulesets!");
                     masterRepository.setMasterPasswordPlain(masterPw);
                     // urgent hotfix delete old passwords after changing the master
                     File oldPasswords = new File("./passwords.pw");
